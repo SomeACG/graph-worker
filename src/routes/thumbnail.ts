@@ -11,7 +11,7 @@ const CACHE_NAME = 'thumb-cache'
 const ROUTE_PATH = '/thumb/:file_name'
 
 // Check for cloudflare cache
-router.get(ROUTE_PATH, cache({ cacheName: CACHE_NAME }))
+router.get(ROUTE_PATH, cache({ cacheName: CACHE_NAME, cacheControl: 'public, max-age=31536000, immutable' }))
 
 router.get(ROUTE_PATH, async (context) => {
     const realm = new RealmApp(context.env);
