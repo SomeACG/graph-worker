@@ -1,6 +1,5 @@
 import { Hono } from 'hono'
 import cache from './middlewares/thumb-cache'
-import RealmApp from '../api/realm';
 import type { AppEnv } from '../types/Env';
 import GraphAPI from '../api/graph';
 import { getImageMIMEType } from '../utils';
@@ -14,10 +13,8 @@ const ROUTE_PATH = '/thumb/:file_name'
 router.get(ROUTE_PATH, cache({ cacheName: CACHE_NAME, cacheControl: 'public, max-age=31536000, immutable' }))
 
 router.get(ROUTE_PATH, async (context) => {
-    const realm = new RealmApp(context.env);
-    const refresh_token = await realm.getResfreshToken()
 
-    const graph = new GraphAPI(refresh_token, context.env)
+    const graph = new GraphAPI(context.env)
     const file_name = context.req.param('file_name')
 
     const response = await graph.getImageThumbnail(

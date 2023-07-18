@@ -1,19 +1,31 @@
 import type { AppEnv } from "../types/Env"
 import type { ThumbnailSize } from "../types/Graph"
+import RealmApp from "./realm"
 
 
 export default class GraphAPI {
-    refresh_token: string
+    refresh_token: string | undefined
     access_token: string | undefined
+    realm: RealmApp | undefined
     env: AppEnv['Bindings']
 
-    constructor(refresh_token: string, env: AppEnv['Bindings']) {
-        this.refresh_token = refresh_token
+    constructor(env: AppEnv['Bindings']) {
         this.env = env
+    }
+
+    async getRefreshToken() {
+        if(!this.refresh_token) {
+            this.realm = new RealmApp(this.env)
+            this.refresh_token = await this.realm.getResfreshToken()
+        }
+
+        return this.refresh_token
     }
 
     async fetchAccessToken() {
         let access_token = await this.env.kv.get('access_token')
+
+        const refresh_token = await this.getRefreshToken()
 
         if(!access_token) {
 
@@ -21,7 +33,7 @@ export default class GraphAPI {
 
             body.append('client_id', this.env.CLIENT_ID);
             body.append('client_secret', this.env.CLIENT_SECRET);
-            body.append('refresh_token', this.refresh_token);
+            body.append('refresh_token', refresh_token);
             body.append('redirect_uri', 'http://localhost');
             body.append('grant_type', 'refresh_token');
 

@@ -20,7 +20,6 @@ export default (options: {
         const cache = await caches.open(options.cacheName);
         const response = await cache.match(key);
 
-
         if (!response) {
             await next();
             if (!context.res.ok) {

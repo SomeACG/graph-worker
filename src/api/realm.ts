@@ -17,17 +17,12 @@ export default class RealmApp {
         this.client = user.mongoClient('mongodb-atlas')
     }
 
-    async getResfreshToken() {
+    async getResfreshToken(): Promise<string> {
         if(!this.client) await this.init(this.credentials);
 
         const configs = this.client?.db('SomeACG_New').collection('configs')
 
-        try {
-            let doc = await configs?.findOne({ name: 'refresh_token' })
-            return doc?.value
-        }
-        catch(err) {
-            console.log(err)
-        }
+        const doc = await configs?.findOne({ name: 'refresh_token' })
+        return doc?.value
     }
 }
