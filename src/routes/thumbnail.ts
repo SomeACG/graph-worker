@@ -24,17 +24,7 @@ router.get(ROUTE_PATH, async (context) => {
 
     if (response.status !== 200) return context.text('File not found', { status: 404 })
 
-    const cache = await caches.open(CACHE_NAME)
-
-    console.log('Request url:',context.req.url);
-
-    const body_tee = response.body?.tee()
-
-    if (!body_tee) return context.text('Not found', { status: 404 })
-
-    await cache.put(context.req.url, new Response(body_tee[0], { headers: { 'Content-Type': getImageMIMEType(file_name) } }))
-
-    return new Response(body_tee[1], { status: response.status, headers: { 'Content-Type': getImageMIMEType(file_name) } })
+    return new Response(response.body, { status: response.status, headers: { 'Content-Type': getImageMIMEType(file_name) } })
 })
 
 export default router;

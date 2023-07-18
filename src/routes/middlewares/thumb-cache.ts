@@ -15,7 +15,7 @@ export default (options: {
     };
 
     return async (context, next) => {
-        
+
         const key = context.req.url;
         const cache = await caches.open(options.cacheName);
         const response = await cache.match(key);
@@ -26,8 +26,15 @@ export default (options: {
                 return;
             }
             addHeader(context.res);
+            const response2 = context.res.clone();
+            if (options.wait) {
+                await cache.put(key, response2);
+            } else {
+                context.executionCtx.waitUntil(cache.put(key, response2));
+            }
+            console.log('Cache missed, put sucessfully');
         } else {
-            console.log('Cache matched, status:', response.status);
+            console.log('Cache matched');
             return new Response(response.body, response);
         }
     };

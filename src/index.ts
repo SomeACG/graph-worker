@@ -3,8 +3,9 @@ import thumbRouter from './routes/thumbnail'
 
 const app = new Hono()
 
-app.get('/', context => {
-    return context.text('What are you looking for?')
+app.use('*', async (context, next) => {
+    console.log(`Request: ${context.req.url}`)
+    await next()
 })
 
 app.route('/graph', thumbRouter)
