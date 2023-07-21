@@ -23,9 +23,14 @@ export default class GraphAPI {
     }
 
     async fetchAccessToken() {
-        let access_token = await this.env.kv.get('access_token')
+        let access_token = await this.env.kv.get('access_token', { cacheTtl: 60 })
 
-        const refresh_token = await this.getRefreshToken()
+        let refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 60 })
+
+        if(!refresh_token) {
+            refresh_token = await this.getRefreshToken()
+            await this.env.kv.put('refresh_token', refresh_token, { expirationTtl: 86400 })
+        }
 
         if(!access_token) {
 
