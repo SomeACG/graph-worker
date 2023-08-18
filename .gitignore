@@ -112,3 +112,6 @@ dist
 
 # Wrangler folder
 .wrangler
+
+# Wranger config file in production
+wrangler.toml

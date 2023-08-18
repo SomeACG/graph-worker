@@ -1,0 +1,18 @@
+name = "someacg-graph"
+type = "javascript"
+
+account_id = "" # Your Cloudflare Account ID 
+workers_dev = true # or zone_id = "<ZONE ID>" if you have one
+compatibility_date = "2023-07-17"
+
+# Your Cloudflare Worker KV ID, need a preview KV for preview_id
+kv_namespaces = [
+  { binding = "kv", id = "", preview_id = "" }
+]
+
+[vars]
+REALM_APPID = "cfworker-graph-jibzu" # Realm APP for Graph API Refresh Token Storage
+GRAPH_BASE = "SomeACG"
+
+[placement]
+mode = "smart"
