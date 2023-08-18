@@ -2,6 +2,13 @@ import type { AppEnv } from "../types/Env"
 import type { ThumbnailSize } from "../types/Graph"
 import RealmApp from "./realm"
 
+interface ThumbResponse {
+    value: {
+        c9600x9600: {
+            url: string
+        }
+    }[]
+}
 
 export default class GraphAPI {
     refresh_token: string | undefined
@@ -65,6 +72,21 @@ export default class GraphAPI {
         return await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${this.env.GRAPH_BASE}/${file_name}:/thumbnails/0/${size}/content`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${ access_token }` }
+        })
+    }
+
+    async getImageOrigin(file_name: string) {
+        const access_token = await this.fetchAccessToken()
+
+        const resp =  await fetch(`https://graph.microsoft.com/v1.0/me/drive/root:/${this.env.GRAPH_BASE}/${file_name}:/thumbnails?select=c9600x9600`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${ access_token }` }
+        })
+
+        const thumb = await resp.json<ThumbResponse>()
+
+        return await fetch(thumb.value[0].c9600x9600.url, {
+            method: 'GET',
         })
     }
 }
