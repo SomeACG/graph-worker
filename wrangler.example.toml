@@ -14,5 +14,8 @@ kv_namespaces = [
 REALM_APPID = "cfworker-graph-jibzu" # Realm APP for Graph API Refresh Token Storage
 GRAPH_BASE = "SomeACG"
 
+[triggers]
+crons = ["0 6 * * sun"]
+
 [placement]
-mode = "smart"
+mode = "off"
