@@ -1,6 +1,5 @@
 import type { AppEnv } from "../types/Env"
 import type { ThumbnailSize } from "../types/Graph"
-import RealmApp from "./realm"
 
 interface ThumbResponse {
     value: {
@@ -13,7 +12,6 @@ interface ThumbResponse {
 export default class GraphAPI {
     refresh_token: string | undefined
     access_token: string | undefined
-    realm: RealmApp | undefined
     env: AppEnv['Bindings']
 
     constructor(env: AppEnv['Bindings']) {
@@ -22,14 +20,13 @@ export default class GraphAPI {
 
     async getRefreshToken() {
         if(!this.refresh_token) {
-            this.realm = new RealmApp(this.env)
-            this.refresh_token = await this.realm.getResfreshToken()
+            this.refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 3600 }) as string
         }
 
         return this.refresh_token
     }
 
-    async fetchAccessToken() {
+    async fetchAccessToken(update_refresh_token?: boolean) {
         let access_token = await this.env.kv.get('access_token', { cacheTtl: 60 })
 
         let refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 60 })
@@ -39,7 +36,7 @@ export default class GraphAPI {
             await this.env.kv.put('refresh_token', refresh_token, { expirationTtl: 86400 })
         }
 
-        if(!access_token) {
+        if(update_refresh_token || !access_token) {
 
             const body = new URLSearchParams();
 
@@ -55,9 +52,14 @@ export default class GraphAPI {
                 body
             })
 
-            const json = await response.json<Record<'access_token' | 'expires_in', string>>()
+            const json = await response.json<Record<'refresh_token' | 'access_token' | 'expires_in', string>>()
 
             access_token = json.access_token
+
+            if(update_refresh_token) {
+
+                await this.env.kv.put('refresh_token', json.refresh_token)        
+            }
 
             await this.env.kv.put('access_token', access_token, { expirationTtl: parseInt(json.expires_in) })
         }
