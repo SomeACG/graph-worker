@@ -18,23 +18,10 @@ export default class GraphAPI {
         this.env = env
     }
 
-    async getRefreshToken() {
-        if(!this.refresh_token) {
-            this.refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 3600 }) as string
-        }
-
-        return this.refresh_token
-    }
-
     async fetchAccessToken(update_refresh_token?: boolean) {
         let access_token = await this.env.kv.get('access_token', { cacheTtl: 60 })
 
-        let refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 60 })
-
-        if(!refresh_token) {
-            refresh_token = await this.getRefreshToken()
-            await this.env.kv.put('refresh_token', refresh_token, { expirationTtl: 86400 })
-        }
+        let refresh_token = await this.env.kv.get('refresh_token', { cacheTtl: 60 }) as string
 
         if(update_refresh_token || !access_token) {
 
